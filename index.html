@@ -7,30 +7,65 @@
 <style>
 /* Estilos CSS */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', Arial, sans-serif;
     background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
     margin: 0;
-    padding: 0;
-    transition: background-color 0.4s ease; /* Transición para el fondo de celebración/error */
+    padding: 20px;
+    transition: background-color 0.4s ease;
 }
-h1 { text-align: center; color: #000000; margin-top: 20px; }
-.menu, .game, .scoreboard { display: none; margin-top: 20px; text-align: center; }
+h1 { 
+    text-align: center; 
+    color: #0b009f; /* Color primario */
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 2.5rem;
+}
+h3 {
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+.menu, .game, .scoreboard { 
+    display: none; 
+    margin-top: 10px; 
+    text-align: center; 
+    background: #f0f4ff;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    max-width: 90%;
+}
 .menu-btn {
     display: inline-block;
-    margin: 5px;
-    padding: 10px 20px;
-    font-size: 18px;
+    margin: 6px;
+    padding: 12px 25px;
+    font-size: 16px;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: 12px;
     border: none;
     background-color: #0b009f;
     color: #fff;
-    transition: 0.3s;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px #070066;
 }
-.menu-btn:hover { background-color: #00bfff; }
+.menu-btn:hover { 
+    background-color: #00bfff; 
+    box-shadow: 0 2px #0088cc;
+    transform: translateY(2px);
+}
+
+/* 🌟 NUEVO: ESTILO PARA BOTONES SELECCIONADOS */
+.menu-btn.selected {
+    background-color: #00bfff; /* Color claro para indicar selección */
+    border: 3px solid #000000; /* Borde oscuro para resaltarlo */
+    transform: scale(1.05); /* Efecto de que está presionado */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
 .word-btn {
     display: inline-block;
     margin: 10px;
@@ -42,14 +77,35 @@ h1 { text-align: center; color: #000000; margin-top: 20px; }
     background-color: #ffa07a;
     color: #fff;
     transition: 0.2s;
+    min-width: 120px;
+    box-shadow: 0 4px #ff6347;
 }
-.word-btn:hover { background-color: #ff4500; }
-#lives, #timer, #score, #highscore { font-size: 20px; margin: 10px; }
+.word-btn:hover { 
+    background-color: #ff4500; 
+    box-shadow: 0 2px #cc3700;
+    transform: translateY(2px);
+}
+
+#lives, #timer, #score, #highscore { 
+    font-size: 20px; 
+    margin: 10px; 
+    font-weight: bold;
+    color: #0b009f;
+}
+
+/* Estilo para la pregunta */
+#question {
+    font-size: 2.2rem;
+    margin: 30px 0;
+    color: #333;
+    font-weight: 700;
+}
+
 /* Clases para efectos visuales */
-.correct { background-color: #32cd32 !important; color: #fff; } /* Verde para correcto */
-.incorrect { background-color: #ff0000 !important; color: #fff; } /* Rojo para incorrecto */
-.scoreboard h2 { color: #0b009f; }
-.scoreboard p { font-size: 18px; line-height: 1.5; }
+.correct { background-color: #32cd32 !important; color: #fff; box-shadow: 0 4px #1e7e34 !important; } /* Verde para correcto */
+.incorrect { background-color: #ff0000 !important; color: #fff; box-shadow: 0 4px #cc0000 !important; } /* Rojo para incorrecto */
+.scoreboard h2 { color: #0b009f; font-size: 2rem; }
+.scoreboard p { font-size: 18px; line-height: 1.5; color: #555; }
 </style>
 </head>
 <body>
@@ -58,20 +114,22 @@ h1 { text-align: center; color: #000000; margin-top: 20px; }
 
 <div class="menu" id="menu">
     <h3>Elige una categoría</h3>
-    <button class="menu-btn" onclick="selectCategory('animals')">🐶 Animales</button>
-    <button class="menu-btn" onclick="selectCategory('colors')">🎨 Colores</button>
-    <button class="menu-btn" onclick="selectCategory('food')">🍎 Alimentos</button>
-    <button class="menu-btn" onclick="selectCategory('objects')">🏠 Objetos</button>
-    <button class="menu-btn" onclick="selectCategory('clothes')">👕 Ropa</button>
-    <button class="menu-btn" onclick="selectCategory('vehicles')">🚗 Vehículos</button>
-    <button class="menu-btn" onclick="selectCategory('emotions')">😊 Emociones</button>
-    <button class="menu-btn" onclick="selectCategory('sports')">⚽ Deportes</button>
-    <button class="menu-btn" onclick="selectCategory('actions')">✍️ Acciones</button>
+    <!-- MODIFICADO: Se añade 'this' para pasar el elemento al JS -->
+    <button class="menu-btn" onclick="selectCategory('animals', this)">🐶 Animales</button>
+    <button class="menu-btn" onclick="selectCategory('colors', this)">🎨 Colores</button>
+    <button class="menu-btn" onclick="selectCategory('food', this)">🍎 Alimentos</button>
+    <button class="menu-btn" onclick="selectCategory('objects', this)">🏠 Objetos</button>
+    <button class="menu-btn" onclick="selectCategory('clothes', this)">👕 Ropa</button>
+    <button class="menu-btn" onclick="selectCategory('vehicles', this)">🚗 Vehículos</button>
+    <button class="menu-btn" onclick="selectCategory('emotions', this)">😊 Emociones</button>
+    <button class="menu-btn" onclick="selectCategory('sports', this)">⚽ Deportes</button>
+    <button class="menu-btn" onclick="selectCategory('actions', this)">✍️ Acciones</button>
 
     <h3>Elige dificultad</h3>
-    <button class="menu-btn" onclick="selectDifficulty('easy')">Fácil (60s)</button>
-    <button class="menu-btn" onclick="selectDifficulty('medium')">Medio (45s)</button>
-    <button class="menu-btn" onclick="selectDifficulty('hard')">Difícil (30s)</button>
+    <!-- MODIFICADO: Se añade 'this' para pasar el elemento al JS -->
+    <button class="menu-btn" onclick="selectDifficulty('easy', this)">Fácil (60s)</button>
+    <button class="menu-btn" onclick="selectDifficulty('medium', this)">Medio (45s)</button>
+    <button class="menu-btn" onclick="selectDifficulty('hard', this)">Difícil (30s)</button>
 
     <br><br>
     <button class="menu-btn" onclick="startGame()">Iniciar Juego</button>
@@ -87,7 +145,8 @@ h1 { text-align: center; color: #000000; margin-top: 20px; }
 </div>
 
 <div class="scoreboard" id="scoreboard">
-    <h2>¡Juego terminado! 🏆</h2>
+    <!-- El título se actualizará en JS (incluye mensaje de pérdida) -->
+    <h2>¡Juego terminado! 🏆</h2> 
     <p id="final-score"></p>
     <p id="final-highscore"></p>
     <p id="final-message"></p>
@@ -191,7 +250,7 @@ const WORDS = {
         { es:"Falda", en:["Skirt","Dress","Pants"], a:"Skirt", emoji:"👗" },
         { es:"Abrigo", en:["Coat","Jacket","Sweater"], a:"Coat", emoji:"🧥" },
         { es:"Guantes", en:["Gloves","Socks","Mittens"], a:"Gloves", emoji:"🧤" },
-        { es:"Bufanda", en:["Scarf","Tie","Belt"], a:"Scarf", emoji:"🧣" },
+        { es: "Bufanda", en:["Scarf","Tie","Belt"], a:"Scarf", emoji:"🧣" },
         { es:"Traje", en:["Suit","Dress","Jacket"], a:"Suit", emoji:"👔" }
     ],
     vehicles: [
@@ -261,9 +320,11 @@ let selectedDifficulty = null;
 let score = 0;
 // highscore se carga desde el almacenamiento local
 let highScore = localStorage.getItem("highScore") || 0; 
-let lives = 5;
+let lives = 5; // Valor por defecto
 let timer = 60;
 let timerInterval;
+let wordDeck = []; // 🆕 NUEVO: Pila de palabras para la ronda actual (para evitar repeticiones)
+
 
 // Función para mostrar una celebración temporal (fondo verde)
 function celebrate() {
@@ -281,29 +342,70 @@ function showMistake() {
     }, 400); // 400ms de error
 }
 
-function selectCategory(cat){ selectedCategory = cat; }
-function selectDifficulty(diff){ selectedDifficulty = diff; }
+// Función auxiliar para mezclar un array (Algoritmo Fisher-Yates)
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Función auxiliar para manejar la selección visual de botones
+function handleSelection(type, element) {
+    const allMenuButtons = document.getElementById('menu').querySelectorAll('.menu-btn');
+    
+    // Limpiamos la clase 'selected' solo de los botones del grupo
+    if (type === 'category') {
+        // Los primeros 9 botones son categorías
+        Array.from(allMenuButtons).slice(0, 9).forEach(b => b.classList.remove('selected'));
+    } else if (type === 'difficulty') {
+        // Los botones 10, 11 y 12 son dificultades
+        Array.from(allMenuButtons).slice(9, 12).forEach(b => b.classList.remove('selected'));
+    }
+
+    // Añadir la clase 'selected' al botón presionado
+    element.classList.add('selected');
+}
+
+// Ahora recibe el elemento (this) para la selección visual
+function selectCategory(cat, element){ 
+    selectedCategory = cat; 
+    handleSelection('category', element);
+}
+
+// Ahora recibe el elemento (this) para la selección visual
+function selectDifficulty(diff, element){ 
+    selectedDifficulty = diff; 
+    handleSelection('difficulty', element);
+}
 
 function startGame(){
     if(!selectedCategory || !selectedDifficulty){
-        alert("Debes seleccionar categoría y dificultad para iniciar");
+        // Usar mensaje box en lugar de alert
+        document.getElementById("question").innerText = "❌ Debes seleccionar categoría y dificultad para iniciar";
+        setTimeout(() => document.getElementById("question").innerText = "", 2000);
         return;
     }
     document.getElementById("menu").style.display = "none";
     document.getElementById("game").style.display = "block";
     score = 0;
-    lives = 5;
-
+    
+    // ⬇️ LÓGICA DE VIDAS POR DIFICULTAD
     if (selectedDifficulty === 'easy') {
-        lives = 5
+        lives = 5;
     } else if (selectedDifficulty === 'medium') {
-        lives = 3
-    } else {
-        lives = 2
+        lives = 3;
+    } else if (selectedDifficulty === 'hard') {
+        lives = 2;
     }
+    
     // Asigna tiempo basado en la dificultad
     timer = selectedDifficulty === "easy" ? 60 : selectedDifficulty === "medium" ? 45 : 30; 
-
+     
+    // 🆕 NUEVO: Cargar y mezclar todas las palabras de la categoría seleccionada
+    wordDeck = shuffle([...WORDS[selectedCategory]]);
+    
     document.getElementById("score").innerText = "Puntos: " + score;
     document.getElementById("lives").innerText = "Vidas: " + "❤️".repeat(lives);
     // Asegura que el highscore mostrado sea un número
@@ -314,29 +416,41 @@ function startGame(){
     timerInterval = setInterval(()=>{
         timer--;
         document.getElementById("timer").innerText = "Tiempo: " + timer;
-     if(timer <= 0) endGame('time_out'); // <--- AÑADIDO: 'time_out'
+        // Llama a endGame con 'time_out'
+        if(timer <= 0) endGame('time_out'); 
     }, 1000);
     nextWord();
 }
 
 function nextWord(){
-    if(lives <= 0){ endGame('lives_out'); return; }
+    // Llama a endGame con 'lives_out'
+    if(lives <= 0){ endGame('lives_out'); return; } 
     
-    const wordsArray = WORDS[selectedCategory];
-    const word = wordsArray[Math.floor(Math.random()*wordsArray.length)];
+    // 🆕 NUEVO: Verificar si quedan palabras en el deck
+    if (wordDeck.length === 0) {
+        // Si el jugador respondió todas las palabras de la categoría, termina el juego.
+        endGame('category_complete'); 
+        return;
+    }
+
+    // 🆕 NUEVO: Saca la primera palabra del deck (FIFO)
+    const word = wordDeck.shift(); 
+    
     document.getElementById("question").innerText = `${word.emoji} ¿Cómo se dice "${word.es}" en inglés?`;
     
     const optionsDiv = document.getElementById("options");
     optionsDiv.innerHTML = "";
     
-    const shuffledOptions = word.en.sort(()=>Math.random()-0.5);
+    // Clonar y mezclar las opciones (para evitar modificar el array original)
+    const shuffledOptions = [...word.en].sort(()=>Math.random()-0.5);
     
     shuffledOptions.forEach(opt=>{
         const btn = document.createElement("button");
         btn.className = "word-btn";
         btn.innerText = opt;
+        optionsDiv.appendChild(btn); // Primero añadimos el botón al DOM
         
-        // Captura todos los botones antes de asignar el click
+        // Capturamos todos los botones que acabamos de crear
         const optionsButtons = Array.from(optionsDiv.children);
 
         btn.onclick = (event)=>{
@@ -359,42 +473,39 @@ function nextWord(){
             document.getElementById("lives").innerText = "Vidas: " + "❤️".repeat(lives);
             
             // Actualizar HighScore
-            if(score > highScore){ 
+            const currentHighScore = parseInt(localStorage.getItem("highScore") || 0);
+            if(score > currentHighScore){ 
                 highScore = score; 
                 localStorage.setItem("highScore", highScore); 
             }
             document.getElementById("highscore").innerText = "Puntaje más alto: " + highScore;
             
-            // Espera 1 segundo (para ver el feedback) antes de la siguiente palabra
+            // Espera para ver el feedback. Aumentado a 1000ms para mejor visualización
             setTimeout(nextWord, 1000); 
         };
-        optionsDiv.appendChild(btn);
-        
-        // Re-captura los botones después de añadirlos (necesario si optionsButtons se usa dentro del click)
-        if (optionsButtons.length === 0) {
-            // Esto es solo para asegurar que la referencia a optionsButtons en el click es correcta
-            optionsButtons.push(btn); 
-        }
     });
 }
 
-function endGame(reason){ // <-- RECIBE EL ARGUMENTO 'reason'
+// MODIFICADO: Ahora recibe la razón del fin del juego (lives_out, time_out o category_complete)
+function endGame(reason){ 
     clearInterval(timerInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("scoreboard").style.display = "block";
     
-    // --- NUEVA LÓGICA DE MENSAJE DE PÉRDIDA ---
+    // --- NUEVA LÓGICA DE MENSAJE DE PÉRDIDA/VICTORIA ---
     const endTitle = document.getElementById("scoreboard").querySelector("h2");
     
     if (reason === 'lives_out') {
         endTitle.innerHTML = "¡Juego terminado! 😭 Se te acabaron las vidas.";
     } else if (reason === 'time_out') {
         endTitle.innerHTML = "¡Juego terminado! ⏱️ Se te acabó el tiempo.";
+    } else if (reason === 'category_complete') {
+        endTitle.innerHTML = "🎉 ¡CATEGORÍA COMPLETADA! ¡Impresionante! 🎉";
     } else {
         endTitle.innerHTML = "¡Juego terminado! 🏆";
     }
     // ------------------------------------------
-
+    
     document.getElementById("final-score").innerText = `Tu puntaje final es: ${score}`;
     
     const storedHighScore = localStorage.getItem("highScore") || 0;
@@ -402,7 +513,7 @@ function endGame(reason){ // <-- RECIBE EL ARGUMENTO 'reason'
     
     const finalMessageElement = document.getElementById("final-message");
 
-    // Lógica de felicitación/ánimo (la que ya tenías)
+    // Lógica de felicitación/ánimo
     if (score > storedHighScore) {
         finalMessageElement.innerHTML = `🎉 **¡FENOMENAL! ¡Has establecido un NUEVO RÉCORD de ${score} puntos!** 🥳`;
     } else if (score == storedHighScore && score > 0) {
@@ -419,6 +530,11 @@ function restartGame(){
     document.getElementById("menu").style.display = "block";
     selectedCategory = null;
     selectedDifficulty = null;
+    
+    // 🧹 Limpia visualmente las selecciones al volver al menú
+    document.getElementById('menu').querySelectorAll('.menu-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
 }
 
 // Mostrar menú al cargar
