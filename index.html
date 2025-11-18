@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Quest Lular 🐼🧩</title>
+<style>
+/* Estilos CSS */
+body {
+    font-family: Arial, sans-serif;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.4s ease; /* Transición para el fondo de celebración/error */
+}
+h1 { text-align: center; color: #000000; margin-top: 20px; }
+.menu, .game, .scoreboard { display: none; margin-top: 20px; text-align: center; }
+.menu-btn {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background-color: #0b009f;
+    color: #fff;
+    transition: 0.3s;
+}
+.menu-btn:hover { background-color: #00bfff; }
+.word-btn {
+    display: inline-block;
+    margin: 10px;
+    padding: 15px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+    background-color: #ffa07a;
+    color: #fff;
+    transition: 0.2s;
+}
+.word-btn:hover { background-color: #ff4500; }
+#lives, #timer, #score, #highscore { font-size: 20px; margin: 10px; }
+/* Clases para efectos visuales */
+.correct { background-color: #32cd32 !important; color: #fff; } /* Verde para correcto */
+.incorrect { background-color: #ff0000 !important; color: #fff; } /* Rojo para incorrecto */
+.scoreboard h2 { color: #0b009f; }
+.scoreboard p { font-size: 18px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<h1>English Quest Lular 🐼🧩</h1>
+
+<div class="menu" id="menu">
+    <h3>Elige una categoría</h3>
+    <button class="menu-btn" onclick="selectCategory('animals')">🐶 Animales</button>
+    <button class="menu-btn" onclick="selectCategory('colors')">🎨 Colores</button>
+    <button class="menu-btn" onclick="selectCategory('food')">🍎 Alimentos</button>
+    <button class="menu-btn" onclick="selectCategory('objects')">🏠 Objetos</button>
+    <button class="menu-btn" onclick="selectCategory('clothes')">👕 Ropa</button>
+    <button class="menu-btn" onclick="selectCategory('vehicles')">🚗 Vehículos</button>
+    <button class="menu-btn" onclick="selectCategory('emotions')">😊 Emociones</button>
+    <button class="menu-btn" onclick="selectCategory('sports')">⚽ Deportes</button>
+    <button class="menu-btn" onclick="selectCategory('actions')">✍️ Acciones</button>
+
+    <h3>Elige dificultad</h3>
+    <button class="menu-btn" onclick="selectDifficulty('easy')">Fácil (60s)</button>
+    <button class="menu-btn" onclick="selectDifficulty('medium')">Medio (45s)</button>
+    <button class="menu-btn" onclick="selectDifficulty('hard')">Difícil (30s)</button>
+
+    <br><br>
+    <button class="menu-btn" onclick="startGame()">Iniciar Juego</button>
+</div>
+
+<div class="game" id="game">
+    <div id="lives">Vidas: ❤️❤️❤️</div>
+    <div id="timer">Tiempo: 60</div>
+    <div id="score">Puntos: 0</div>
+    <div id="highscore">Puntaje más alto: 0</div>
+    <h2 id="question"></h2>
+    <div id="options"></div>
+</div>
+
+<div class="scoreboard" id="scoreboard">
+    <h2>¡Juego terminado! 🏆</h2>
+    <p id="final-score"></p>
+    <p id="final-highscore"></p>
+    <p id="final-message"></p>
+    <button class="menu-btn" onclick="restartGame()">Volver al menú</button>
+</div>
+
+<script>
+// ====================================================================
+// 🌎 DICCIONARIO DE PALABRAS (WORDS Object)
+// ====================================================================
+
+const WORDS = {
+    animals: [
+        { es: "Perro", en: ["Dog","Cat","Horse"], a:"Dog", emoji:"🐶" },
+        { es: "Gato", en: ["Cat","Cow","Chicken"], a:"Cat", emoji:"🐱" },
+        { es: "Caballo", en: ["Horse","Bear","Duck"], a:"Horse", emoji:"🐴" },
+        { es: "Vaca", en: ["Cow","Sheep","Pig"], a:"Cow", emoji:"🐮" },
+        { es: "Cerdo", en: ["Pig","Goat","Dog"], a:"Pig", emoji:"🐷" },
+        { es: "Oveja", en: ["Sheep","Cat","Rabbit"], a:"Sheep", emoji:"🐑" },
+        { es: "Conejo", en: ["Rabbit","Cat","Dog"], a:"Rabbit", emoji:"🐰" },
+        { es: "Mono", en: ["Monkey","Elephant","Lion"], a:"Monkey", emoji:"🐒" },
+        { es: "León", en: ["Lion","Tiger","Bear"], a:"Lion", emoji:"🦁" },
+        { es: "Tigre", en: ["Tiger","Lion","Cat"], a:"Tiger", emoji:"🐯" },
+        { es: "Elefante", en: ["Elephant","Rhino","Hippo"], a:"Elephant", emoji:"🐘" },
+        { es: "Zorro", en: ["Fox","Wolf","Bear"], a:"Fox", emoji:"🦊" },
+        { es: "Pato", en: ["Duck","Goose","Bird"], a:"Duck", emoji:"🦆" },
+        { es: "Ratón", en: ["Mouse","Rat","Hamster"], a:"Mouse", emoji:"🐭" },
+        { es: "Serpiente", en: ["Snake","Lizard","Worm"], a:"Snake", emoji:"🐍" },
+        { es: "Pez", en: ["Fish","Shark","Whale"], a:"Fish", emoji:"🐠" },
+        { es: "Jirafa", en: ["Giraffe","Zebra","Deer"], a:"Giraffe", emoji:"🦒" },
+        { es: "Oso", en: ["Bear","Wolf","Fox"], a:"Bear", emoji:"🐻" },
+        { es: "Pájaro", en: ["Bird","Eagle","Hawk"], a:"Bird", emoji:"🐦" },
+        { es: "Cebra", en: ["Zebra","Donkey","Giraffe"], a:"Zebra", emoji:"🦓" }
+    ],
+    colors: [
+        { es: "Rojo", en: ["Red","Blue","Green"], a:"Red", emoji:"🟥" },
+        { es: "Azul", en: ["Blue","Yellow","Green"], a:"Blue", emoji:"🟦" },
+        { es: "Verde", en: ["Green","Red","Blue"], a:"Green", emoji:"🟩" },
+        { es: "Amarillo", en: ["Yellow","Red","Green"], a:"Yellow", emoji:"🟨" },
+        { es: "Naranja", en: ["Orange","Purple","Blue"], a:"Orange", emoji:"🟧" },
+        { es: "Morado", en: ["Purple","Pink","Brown"], a:"Purple", emoji:"🟪" },
+        { es: "Rosa", en: ["Pink","Purple","Red"], a:"Pink", emoji:"🌸" },
+        { es: "Negro", en: ["Black","White","Grey"], a:"Black", emoji:"⬛" },
+        { es: "Blanco", en: ["White","Black","Grey"], a:"White", emoji:"⬜" },
+        { es: "Marrón", en: ["Brown","Yellow","Orange"], a:"Brown", emoji:"🟫" },
+        { es: "Gris", en: ["Grey","Black","White"], a:"Grey", emoji:"🔘" },
+        { es: "Dorado", en: ["Gold","Silver","Bronze"], a:"Gold", emoji:"🥇" },
+        { es: "Plateado", en: ["Silver","Gold","Gray"], a:"Silver", emoji:"🥈" },
+        { es: "Claro", en: ["Light","Dark","Bright"], a:"Light", emoji:"💡" },
+        { es: "Oscuro", en: ["Dark","Light","Deep"], a:"Dark", emoji:"🌑" }
+    ],
+    food: [
+        { es: "Manzana", en: ["Apple","Banana","Grape"], a:"Apple", emoji:"🍎" },
+        { es: "Banana", en: ["Banana","Pear","Orange"], a:"Banana", emoji:"🍌" },
+        { es: "Uvas", en: ["Grape","Apple","Orange"], a:"Grape", emoji:"🍇" },
+        { es: "Naranja", en: ["Orange","Apple","Banana"], a:"Orange", emoji:"🍊" },
+        { es: "Fresa", en: ["Strawberry","Cherry","Apple"], a:"Strawberry", emoji:"🍓" },
+        { es: "Pera", en: ["Pear","Apple","Grape"], a:"Pear", emoji:"🍐" },
+        { es: "Piña", en: ["Pineapple","Melon","Kiwi"], a:"Pineapple", emoji:"🍍" },
+        { es: "Pan", en: ["Bread","Toast","Cake"], a:"Bread", emoji:"🍞" },
+        { es: "Queso", en: ["Cheese","Butter","Yogurt"], a:"Cheese", emoji:"🧀" },
+        { es: "Pizza", en: ["Pizza","Pasta","Salad"], a:"Pizza", emoji:"🍕" },
+        { es: "Huevo", en: ["Egg","Chicken","Milk"], a:"Egg", emoji:"🥚" },
+        { es: "Leche", en: ["Milk","Water","Juice"], a:"Milk", emoji:"🥛" },
+        { es: "Azúcar", en: ["Sugar","Salt","Flour"], a:"Sugar", emoji:"🍬" },
+        { es: "Carne", en: ["Meat","Fish","Poultry"], a:"Meat", emoji:"🥩" },
+        { es: "Pescado", en: ["Fish","Meat","Chicken"], a:"Fish", emoji:"🐟" },
+        { es: "Helado", en: ["Ice Cream","Yogurt","Cake"], a:"Ice Cream", emoji:"🍦" },
+        { es: "Zanahoria", en: ["Carrot","Potato","Tomato"], a:"Carrot", emoji:"🥕" },
+        { es: "Hamburguesa", en: ["Hamburger","Sandwich","Taco"], a:"Hamburger", emoji:"🍔" }
+    ],
+    objects: [
+        { es:"Casa", en:["House","Tree","Car"], a:"House", emoji:"🏠" },
+        { es:"Agua", en:["Water","Milk","Juice"], a:"Water", emoji:"💧" },
+        { es:"Coche", en:["Car","Bike","Bus"], a:"Car", emoji:"🚗" },
+        { es:"Libro", en:["Book","Notebook","Pen"], a:"Book", emoji:"📚" },
+        { es:"Llave", en:["Key","Lock","Door"], a:"Key", emoji:"🔑" },
+        { es:"Mesa", en:["Table","Chair","Desk"], a:"Table", emoji:"🪑" },
+        { es:"Silla", en:["Chair","Sofa","Couch"], a:"Chair", emoji:"🪑" },
+        { es:"Teléfono", en:["Phone","Tablet","Screen"], a:"Phone", emoji:"📱" },
+        { es:"Reloj", en:["Clock","Watch","Time"], a:"Clock", emoji:"⏰" },
+        { es:"Lápiz", en:["Pencil","Pen","Eraser"], a:"Pencil", emoji:"✏️" },
+        { es:"Ventana", en:["Window","Door","Wall"], a:"Window", emoji:"🪟" },
+        { es:"Computadora", en:["Computer","Screen","Keyboard"], a:"Computer", emoji:"💻" },
+        { es:"Televisión", en:["Television","Radio","Screen"], a:"Television", emoji:"📺" },
+        { es:"Cama", en:["Bed","Pillow","Blanket"], a:"Bed", emoji:"🛏️" },
+        { es:"Puerta", en:["Door","Wall","Roof"], a:"Door", emoji:"🚪" },
+        { es:"Luz", en:["Light","Darkness","Lamp"], a:"Light", emoji:"💡" },
+        { es:"Espejo", en:["Mirror","Glass","Picture"], a:"Mirror", emoji:"🪞" },
+        { es:"Dinero", en:["Money","Coin","Cash"], a:"Money", emoji:"💰" },
+        { es:"Música", en:["Music","Song","Sound"], a:"Music", emoji:"🎶" }
+    ],
+    clothes: [
+        { es:"Camiseta", en:["T-Shirt","Shirt","Jacket"], a:"T-Shirt", emoji:"👕" },
+        { es:"Pantalones", en:["Pants","Shorts","Skirt"], a:"Pants", emoji:"👖" },
+        { es:"Zapatos", en:["Shoes","Socks","Boots"], a:"Shoes", emoji:"👟" },
+        { es:"Vestido", en:["Dress","Skirt","Suit"], a:"Dress", emoji:"👗" },
+        { es:"Chaqueta", en:["Jacket","Coat","Sweater"], a:"Jacket", emoji:"🧥" },
+        { es:"Calcetines", en:["Socks","Gloves","Hat"], a:"Socks", emoji:"🧦" },
+        { es:"Sombrero", en: ["Hat","Cap","Scarf"], a:"Hat", emoji:"🎩" },
+        { es:"Falda", en:["Skirt","Dress","Pants"], a:"Skirt", emoji:"👗" },
+        { es:"Abrigo", en:["Coat","Jacket","Sweater"], a:"Coat", emoji:"🧥" },
+        { es:"Guantes", en:["Gloves","Socks","Mittens"], a:"Gloves", emoji:"🧤" },
+        { es:"Bufanda", en:["Scarf","Tie","Belt"], a:"Scarf", emoji:"🧣" },
+        { es:"Traje", en:["Suit","Dress","Jacket"], a:"Suit", emoji:"👔" }
+    ],
+    vehicles: [
+        { es:"Coche", en:["Car","Bike","Bus"], a:"Car", emoji:"🚗" },
+        { es:"Avión", en:["Plane","Helicopter","Car"], a:"Plane", emoji:"✈️" },
+        { es:"Bicicleta", en:["Bike","Motorcycle","Car"], a:"Bike", emoji:"🚲" },
+        { es:"Autobús", en:["Bus","Train","Car"], a:"Bus", emoji:"🚌" },
+        { es:"Tren", en:["Train","Subway","Tram"], a:"Train", emoji:"🚆" },
+        { es:"Barco", en:["Boat","Ship","Yacht"], a:"Boat", emoji:"🚢" },
+        { es:"Camión", en:["Truck","Van","Bus"], a:"Truck", emoji:"🚚" },
+        { es:"Motocicleta", en:["Motorcycle","Bike","Scooter"], a:"Motorcycle", emoji:"🏍️" },
+        { es:"Ambulancia", en:["Ambulance","Police","Fire"], a:"Ambulance", emoji:"🚑" },
+        { es:"Taxi", en:["Taxi","Bus","Car"], a:"Taxi", emoji:"🚕" }
+    ],
+    emotions: [
+        { es:"Feliz", en:["Happy","Sad","Angry"], a:"Happy", emoji:"😊" },
+        { es:"Triste", en:["Sad","Happy","Angry"], a:"Sad", emoji:"😢" },
+        { es:"Enfadado", en:["Angry","Bored","Scared"], a:"Angry", emoji:"😡" },
+        { es:"Sorprendido", en:["Surprised","Confused","Shy"], a:"Surprised", emoji:"😮" },
+        { es:"Cansado", en:["Tired","Sleepy","Relaxed"], a:"Tired", emoji:"😴" },
+        { es:"Aburrido", en:["Bored","Calm","Excited"], a:"Bored", emoji:"😒" },
+        { es:"Asustado", en:["Scared","Brave","Safe"], a:"Scared", emoji:"😨" },
+        { es:"Emocionado", en:["Excited","Calm","Bored"], a:"Excited", emoji:"🤩" },
+        { es:"Confundido", en:["Confused","Clear","Sure"], a:"Confused", emoji:"😕" },
+        { es:"Alegre", en:["Joyful","Gloomy","Tired"], a:"Joyful", emoji:"😄" },
+        { es:"Calmado", en:["Calm","Nervous","Excited"], a:"Calm", emoji:"😌" }
+    ],
+    sports: [
+        { es:"Fútbol", en:["Soccer","Basketball","Tennis"], a:"Soccer", emoji:"⚽" },
+        { es:"Baloncesto", en:["Basketball","Soccer","Tennis"], a:"Basketball", emoji:"🏀" },
+        { es:"Tenis", en:["Tennis","Volleyball","Baseball"], a:"Tennis", emoji:"🎾" },
+        { es:"Natación", en:["Swimming","Running","Cycling"], a:"Swimming", emoji:"🏊" },
+        { es:"Béisbol", en:["Baseball","Soccer","Golf"], a:"Baseball", emoji:"⚾" },
+        { es:"Correr", en:["Running","Walking","Jumping"], a:"Running", emoji:"🏃" },
+        { es:"Voleibol", en:["Volleyball","Handball","Rugby"], a:"Volleyball", emoji:"🏐" },
+        { es:"Ciclismo", en:["Cycling","Running","Walking"], a:"Cycling", emoji:"🚴" },
+        { es:"Boxeo", en:["Boxing","Karate","Judo"], a:"Boxing", emoji:"🥊" },
+        { es:"Golf", en:["Golf","Tennis","Polo"], a:"Golf", emoji:"⛳" },
+        { es:"Patinaje", en:["Skating","Skiing","Surfing"], a:"Skating", emoji:"⛸️" }
+    ],
+    actions: [
+        { es:"Correr", en:["Run","Walk","Jump"], a:"Run", emoji:"🏃" },
+        { es:"Comer", en:["Eat","Drink","Sleep"], a:"Eat", emoji:"🍽️" },
+        { es:"Beber", en:["Drink","Eat","Sleep"], a:"Drink", emoji:"🥤" },
+        { es:"Dormir", en:["Sleep","Wake","Rest"], a:"Sleep", emoji:"😴" },
+        { es:"Hablar", en:["Speak","Listen","Say"], a:"Speak", emoji:"🗣️" },
+        { es:"Escribir", en:["Write","Read","Draw"], a:"Write", emoji:"✍️" },
+        { es:"Leer", en:["Read","Write","Look"], a:"Read", emoji:"📖" },
+        { es:"Jugar", en:["Play","Work","Study"], a:"Play", emoji:"🎮" },
+        { es:"Ver", en:["See","Look","Watch"], a:"See", emoji:"👀" },
+        { es:"Escuchar", en:["Listen","Hear","Speak"], a:"Listen", emoji:"👂" },
+        { es:"Caminar", en:["Walk","Run","Jump"], a:"Walk", emoji:"🚶‍♀️" },
+        { es:"Saltar", en:["Jump","Run","Fly"], a:"Jump", emoji:"🤸" },
+        { es:"Nadar", en:["Swim","Dive","Float"], a:"Swim", emoji:"🏊" },
+        { es:"Cocinar", en:["Cook","Bake","Eat"], a:"Cook", emoji:"🍳" },
+        { es:"Bailar", en:["Dance","Sing","Move"], a:"Dance", emoji:"💃" }
+    ]
+};
+
+
+// ====================================================================
+// 🎮 LÓGICA DEL JUEGO (GAME LOGIC)
+// ====================================================================
+
+let selectedCategory = null;
+let selectedDifficulty = null;
+let score = 0;
+// highscore se carga desde el almacenamiento local
+let highScore = localStorage.getItem("highScore") || 0; 
+let lives = 5;
+let timer = 60;
+let timerInterval;
+
+// Función para mostrar una celebración temporal (fondo verde)
+function celebrate() {
+    document.body.style.backgroundColor = '#ccffcc'; 
+    setTimeout(() => {
+        document.body.style.backgroundColor = '#ffffff'; 
+    }, 400); // 400ms de celebración
+}
+
+// Función para mostrar un error temporal (fondo rojo)
+function showMistake() {
+    document.body.style.backgroundColor = '#ffcccc'; 
+    setTimeout(() => {
+        document.body.style.backgroundColor = '#ffffff'; 
+    }, 400); // 400ms de error
+}
+
+function selectCategory(cat){ selectedCategory = cat; }
+function selectDifficulty(diff){ selectedDifficulty = diff; }
+
+function startGame(){
+    if(!selectedCategory || !selectedDifficulty){
+        alert("Debes seleccionar categoría y dificultad para iniciar");
+        return;
+    }
+    document.getElementById("menu").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    score = 0;
+    lives = 5;
+
+    if (selectedDifficulty === 'easy') {
+        lives = 5
+    } else if (selectedDifficulty === 'medium') {
+        lives = 3
+    } else {
+        lives = 2
+    }
+    // Asigna tiempo basado en la dificultad
+    timer = selectedDifficulty === "easy" ? 60 : selectedDifficulty === "medium" ? 45 : 30; 
+
+    document.getElementById("score").innerText = "Puntos: " + score;
+    document.getElementById("lives").innerText = "Vidas: " + "❤️".repeat(lives);
+    // Asegura que el highscore mostrado sea un número
+    document.getElementById("highscore").innerText = "Puntaje más alto: " + highScore; 
+    document.getElementById("timer").innerText = "Tiempo: " + timer;
+    
+    clearInterval(timerInterval); // Limpia cualquier intervalo previo
+    timerInterval = setInterval(()=>{
+        timer--;
+        document.getElementById("timer").innerText = "Tiempo: " + timer;
+     if(timer <= 0) endGame('time_out'); // <--- AÑADIDO: 'time_out'
+    }, 1000);
+    nextWord();
+}
+
+function nextWord(){
+    if(lives <= 0){ endGame('lives_out'); return; }
+    
+    const wordsArray = WORDS[selectedCategory];
+    const word = wordsArray[Math.floor(Math.random()*wordsArray.length)];
+    document.getElementById("question").innerText = `${word.emoji} ¿Cómo se dice "${word.es}" en inglés?`;
+    
+    const optionsDiv = document.getElementById("options");
+    optionsDiv.innerHTML = "";
+    
+    const shuffledOptions = word.en.sort(()=>Math.random()-0.5);
+    
+    shuffledOptions.forEach(opt=>{
+        const btn = document.createElement("button");
+        btn.className = "word-btn";
+        btn.innerText = opt;
+        
+        // Captura todos los botones antes de asignar el click
+        const optionsButtons = Array.from(optionsDiv.children);
+
+        btn.onclick = (event)=>{
+            // Desactivar todos los botones para prevenir múltiples clics
+            optionsButtons.forEach(b => b.disabled = true); 
+
+            if(opt === word.a){
+                score += 10;
+                btn.classList.add("correct");
+                celebrate(); 
+            } else {
+                lives--;
+                btn.classList.add("incorrect");
+                showMistake();
+                // Resaltar la respuesta correcta
+                optionsButtons.find(b => b.innerText === word.a).classList.add("correct");
+            }
+            
+            document.getElementById("score").innerText = "Puntos: " + score;
+            document.getElementById("lives").innerText = "Vidas: " + "❤️".repeat(lives);
+            
+            // Actualizar HighScore
+            if(score > highScore){ 
+                highScore = score; 
+                localStorage.setItem("highScore", highScore); 
+            }
+            document.getElementById("highscore").innerText = "Puntaje más alto: " + highScore;
+            
+            // Espera 1 segundo (para ver el feedback) antes de la siguiente palabra
+            setTimeout(nextWord, 1000); 
+        };
+        optionsDiv.appendChild(btn);
+        
+        // Re-captura los botones después de añadirlos (necesario si optionsButtons se usa dentro del click)
+        if (optionsButtons.length === 0) {
+            // Esto es solo para asegurar que la referencia a optionsButtons en el click es correcta
+            optionsButtons.push(btn); 
+        }
+    });
+}
+
+function endGame(reason){ // <-- RECIBE EL ARGUMENTO 'reason'
+    clearInterval(timerInterval);
+    document.getElementById("game").style.display = "none";
+    document.getElementById("scoreboard").style.display = "block";
+    
+    // --- NUEVA LÓGICA DE MENSAJE DE PÉRDIDA ---
+    const endTitle = document.getElementById("scoreboard").querySelector("h2");
+    
+    if (reason === 'lives_out') {
+        endTitle.innerHTML = "¡Juego terminado! 😭 Se te acabaron las vidas.";
+    } else if (reason === 'time_out') {
+        endTitle.innerHTML = "¡Juego terminado! ⏱️ Se te acabó el tiempo.";
+    } else {
+        endTitle.innerHTML = "¡Juego terminado! 🏆";
+    }
+    // ------------------------------------------
+
+    document.getElementById("final-score").innerText = `Tu puntaje final es: ${score}`;
+    
+    const storedHighScore = localStorage.getItem("highScore") || 0;
+    document.getElementById("final-highscore").innerText = `Puntaje más alto: ${storedHighScore}`;
+    
+    const finalMessageElement = document.getElementById("final-message");
+
+    // Lógica de felicitación/ánimo (la que ya tenías)
+    if (score > storedHighScore) {
+        finalMessageElement.innerHTML = `🎉 **¡FENOMENAL! ¡Has establecido un NUEVO RÉCORD de ${score} puntos!** 🥳`;
+    } else if (score == storedHighScore && score > 0) {
+        finalMessageElement.innerHTML = `🌟 **¡Increíble desempeño! ¡Igualaste tu mejor marca!** 👏`;
+    } else if (score > 0) {
+        finalMessageElement.innerHTML = `✨ **¡Excelente esfuerzo! Sigue así. ¡Con un poco más de práctica, superarás ese récord!** 💪`;
+    } else {
+        finalMessageElement.innerHTML = `😔 **Sigue practicando. Cada error es una lección. ¡Vuelve a intentarlo!** 👍`;
+    }
+}
+
+function restartGame(){
+    document.getElementById("scoreboard").style.display = "none";
+    document.getElementById("menu").style.display = "block";
+    selectedCategory = null;
+    selectedDifficulty = null;
+}
+
+// Mostrar menú al cargar
+document.getElementById("menu").style.display = "block";
+</script>
+
+</body>
+</html>
