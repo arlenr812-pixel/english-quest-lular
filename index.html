@@ -58,7 +58,7 @@ h3 {
     transform: translateY(2px);
 }
 
-/* 🌟 NUEVO: ESTILO PARA BOTONES SELECCIONADOS */
+/* 🌟 ESTILO PARA BOTONES SELECCIONADOS */
 .menu-btn.selected {
     background-color: #00bfff; /* Color claro para indicar selección */
     border: 3px solid #000000; /* Borde oscuro para resaltarlo */
@@ -93,12 +93,13 @@ h3 {
     color: #0b009f;
 }
 
-/* Estilo para la pregunta */
+/* Estilo para la pregunta (dentro del juego) */
 #question {
     font-size: 2.2rem;
     margin: 30px 0;
     color: #333;
     font-weight: 700;
+    min-height: 40px; 
 }
 
 /* Clases para efectos visuales */
@@ -106,6 +107,23 @@ h3 {
 .incorrect { background-color: #ff0000 !important; color: #fff; box-shadow: 0 4px #cc0000 !important; } /* Rojo para incorrecto */
 .scoreboard h2 { color: #0b009f; font-size: 2rem; }
 .scoreboard p { font-size: 18px; line-height: 1.5; color: #555; }
+
+/* Animación de rebote para el error del menú */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+#menu-feedback {
+    min-height: 30px; 
+    margin: 15px 0;
+}
+#menu-feedback span {
+    font-weight: bold;
+    color: #cc0000; /* Rojo oscuro */
+    font-size: 1.2rem;
+    display: inline-block;
+    animation: bounce 0.5s ease-in-out;
+}
 </style>
 </head>
 <body>
@@ -114,7 +132,6 @@ h3 {
 
 <div class="menu" id="menu">
     <h3>Elige una categoría</h3>
-    <!-- MODIFICADO: Se añade 'this' para pasar el elemento al JS -->
     <button class="menu-btn" onclick="selectCategory('animals', this)">🐶 Animales</button>
     <button class="menu-btn" onclick="selectCategory('colors', this)">🎨 Colores</button>
     <button class="menu-btn" onclick="selectCategory('food', this)">🍎 Alimentos</button>
@@ -126,12 +143,12 @@ h3 {
     <button class="menu-btn" onclick="selectCategory('actions', this)">✍️ Acciones</button>
 
     <h3>Elige dificultad</h3>
-    <!-- MODIFICADO: Se añade 'this' para pasar el elemento al JS -->
     <button class="menu-btn" onclick="selectDifficulty('easy', this)">Fácil (60s)</button>
     <button class="menu-btn" onclick="selectDifficulty('medium', this)">Medio (45s)</button>
     <button class="menu-btn" onclick="selectDifficulty('hard', this)">Difícil (30s)</button>
 
-    <br><br>
+    <div id="menu-feedback"></div> <!-- ⬅️ NUEVO: Área para mensajes de error del menú -->
+
     <button class="menu-btn" onclick="startGame()">Iniciar Juego</button>
 </div>
 
@@ -145,7 +162,6 @@ h3 {
 </div>
 
 <div class="scoreboard" id="scoreboard">
-    <!-- El título se actualizará en JS (incluye mensaje de pérdida) -->
     <h2>¡Juego terminado! 🏆</h2> 
     <p id="final-score"></p>
     <p id="final-highscore"></p>
@@ -323,7 +339,7 @@ let highScore = localStorage.getItem("highScore") || 0;
 let lives = 5; // Valor por defecto
 let timer = 60;
 let timerInterval;
-let wordDeck = []; // 🆕 NUEVO: Pila de palabras para la ronda actual (para evitar repeticiones)
+let wordDeck = []; // Pila de palabras para la ronda actual (para evitar repeticiones)
 
 
 // Función para mostrar una celebración temporal (fondo verde)
@@ -366,6 +382,8 @@ function handleSelection(type, element) {
 
     // Añadir la clase 'selected' al botón presionado
     element.classList.add('selected');
+    // Limpiar feedback cuando el usuario selecciona algo
+    document.getElementById("menu-feedback").innerHTML = "";
 }
 
 // Ahora recibe el elemento (this) para la selección visual
@@ -380,18 +398,38 @@ function selectDifficulty(diff, element){
     handleSelection('difficulty', element);
 }
 
+// 🎯 FUNCIÓN ACTUALIZADA: Muestra un error en el nuevo contenedor visible (#menu-feedback)
+function displayError(message) {
+    const feedbackElement = document.getElementById("menu-feedback");
+    feedbackElement.innerHTML = `<span>${message}</span>`;
+    
+    // Quita el mensaje de error después de 3 segundos
+    setTimeout(() => {
+        feedbackElement.innerHTML = "";
+    }, 3000); 
+}
+
 function startGame(){
-    if(!selectedCategory || !selectedDifficulty){
-        // Usar mensaje box en lugar de alert
-        document.getElementById("question").innerText = "❌ Debes seleccionar categoría y dificultad para iniciar";
-        setTimeout(() => document.getElementById("question").innerText = "", 2000);
-        return;
+    // LÓGICA DE VERIFICACIÓN AL PRESIONAR EL BOTÓN INICIAR JUEGO
+    if (!selectedCategory && !selectedDifficulty) {
+        displayError("❌ Debes seleccionar una CATEGORÍA y una DIFICULTAD para empezar.");
+        return; 
     }
+    if (!selectedCategory) {
+        displayError("❌ ¡Espera! Por favor, selecciona una CATEGORÍA antes de iniciar.");
+        return; 
+    }
+    if (!selectedDifficulty) {
+        displayError("❌ ¡Espera! Por favor, selecciona una DIFICULTAD antes de iniciar.");
+        return; 
+    }
+    // Si llegamos aquí, ambas selecciones son válidas y el juego inicia.
+
     document.getElementById("menu").style.display = "none";
     document.getElementById("game").style.display = "block";
     score = 0;
     
-    // ⬇️ LÓGICA DE VIDAS POR DIFICULTAD
+    // LÓGICA DE VIDAS POR DIFICULTAD
     if (selectedDifficulty === 'easy') {
         lives = 5;
     } else if (selectedDifficulty === 'medium') {
@@ -403,7 +441,7 @@ function startGame(){
     // Asigna tiempo basado en la dificultad
     timer = selectedDifficulty === "easy" ? 60 : selectedDifficulty === "medium" ? 45 : 30; 
      
-    // 🆕 NUEVO: Cargar y mezclar todas las palabras de la categoría seleccionada
+    // Cargar y mezclar todas las palabras de la categoría seleccionada
     wordDeck = shuffle([...WORDS[selectedCategory]]);
     
     document.getElementById("score").innerText = "Puntos: " + score;
@@ -426,17 +464,19 @@ function nextWord(){
     // Llama a endGame con 'lives_out'
     if(lives <= 0){ endGame('lives_out'); return; } 
     
-    // 🆕 NUEVO: Verificar si quedan palabras en el deck
+    // Verificar si quedan palabras en el deck
     if (wordDeck.length === 0) {
         // Si el jugador respondió todas las palabras de la categoría, termina el juego.
         endGame('category_complete'); 
         return;
     }
 
-    // 🆕 NUEVO: Saca la primera palabra del deck (FIFO)
+    // Saca la primera palabra del deck (FIFO)
     const word = wordDeck.shift(); 
     
-    document.getElementById("question").innerText = `${word.emoji} ¿Cómo se dice "${word.es}" en inglés?`;
+    // Limpia cualquier mensaje de error anterior y pone la pregunta
+    const questionElement = document.getElementById("question");
+    questionElement.innerText = `${word.emoji} ¿Cómo se dice "${word.es}" en inglés?`;
     
     const optionsDiv = document.getElementById("options");
     optionsDiv.innerHTML = "";
@@ -486,13 +526,13 @@ function nextWord(){
     });
 }
 
-// MODIFICADO: Ahora recibe la razón del fin del juego (lives_out, time_out o category_complete)
+// Ahora recibe la razón del fin del juego (lives_out, time_out o category_complete)
 function endGame(reason){ 
     clearInterval(timerInterval);
     document.getElementById("game").style.display = "none";
     document.getElementById("scoreboard").style.display = "block";
     
-    // --- NUEVA LÓGICA DE MENSAJE DE PÉRDIDA/VICTORIA ---
+    // --- LÓGICA DE MENSAJE DE PÉRDIDA/VICTORIA ---
     const endTitle = document.getElementById("scoreboard").querySelector("h2");
     
     if (reason === 'lives_out') {
@@ -535,6 +575,8 @@ function restartGame(){
     document.getElementById('menu').querySelectorAll('.menu-btn').forEach(btn => {
         btn.classList.remove('selected');
     });
+    // Limpia el mensaje de feedback del menú
+    document.getElementById("menu-feedback").innerHTML = "";
 }
 
 // Mostrar menú al cargar
